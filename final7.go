@@ -39,7 +39,6 @@ func gerarMatrizAleatoria(ordem int) [][]int {
 
 	mat = make([][]int, ordem)
 	maxValor = (ordem * ordem) / 2
-
 	for ContI = 0; ContI < ordem; ContI++ {
 		mat[ContI] = make([]int, ordem)
 		for ContJ = 0; ContJ < ordem; ContJ++ {
@@ -65,10 +64,10 @@ func menorMatriz(mat [][]int, linha int, coluna int) [][]int {
 
 	novaI = 0
 	for i = 0; i < ordem; i++ {
-		if i <= linha-1 || i >= linha+1 {
+		if (i < linha) || (i > linha) {
 			novaJ = 0
 			for j = 0; j < ordem; j++ {
-				if j <= coluna-1 || j >= coluna+1 {
+				if (j < coluna) || (j > coluna) {
 					nova[novaI][novaJ] = mat[i][j]
 					novaJ = novaJ + 1
 				}
@@ -86,11 +85,9 @@ func determinanteBaseline(mat [][]int) int {
 	var sinal int
 
 	ordem = len(mat)
-
 	if ordem == 1 {
 		return mat[0][0]
 	}
-
 	if ordem == 2 {
 		return mat[0][0]*mat[1][1] - mat[0][1]*mat[1][0]
 	}
@@ -105,58 +102,149 @@ func determinanteBaseline(mat [][]int) int {
 }
 
 func determinanteOtimizado(mat [][]int) int {
-	return determinanteBaseline(mat)
+	var ordem int
+	var det int
+	var i int
+	var j int
+	var maiorZerosLinha int
+	var maiorZerosColuna int
+	var linhaEscolhida int
+	var colunaEscolhida int
+	var sinal int
+	var submat [][]int
+
+	var zerosLinha []int
+	var zerosColuna []int
+
+	ordem = len(mat)
+	if ordem == 1 {
+		return mat[0][0]
+	}
+	if ordem == 2 {
+		return mat[0][0]*mat[1][1] - mat[0][1]*mat[1][0]
+	}
+
+	zerosLinha = make([]int, ordem)
+	zerosColuna = make([]int, ordem)
+
+	for i = 0; i < ordem; i++ {
+		zerosLinha[i] = 0
+		zerosColuna[i] = 0
+	}
+
+	for i = 0; i < ordem; i++ {
+		for j = 0; j < ordem; j++ {
+			if mat[i][j] == 0 {
+				zerosLinha[i] = zerosLinha[i] + 1
+				zerosColuna[j] = zerosColuna[j] + 1
+			}
+		}
+	}
+
+	maiorZerosLinha = zerosLinha[0]
+	linhaEscolhida = 0
+	for i = 1; i < ordem; i++ {
+		if zerosLinha[i] > maiorZerosLinha {
+			maiorZerosLinha = zerosLinha[i]
+			linhaEscolhida = i
+		}
+	}
+
+	maiorZerosColuna = zerosColuna[0]
+	colunaEscolhida = 0
+	for j = 1; j < ordem; j++ {
+		if zerosColuna[j] > maiorZerosColuna {
+			maiorZerosColuna = zerosColuna[j]
+			colunaEscolhida = j
+		}
+	}
+
+	det = 0
+	sinal = 1
+
+	if maiorZerosLinha >= maiorZerosColuna {
+		for j = 0; j < ordem; j++ {
+			if mat[linhaEscolhida][j] != 0 {
+				submat = menorMatriz(mat, linhaEscolhida, j)
+				det = det + sinal*mat[linhaEscolhida][j]*determinanteOtimizado(submat)
+			}
+			sinal = sinal * (-1)
+		}
+	} else {
+		for i = 0; i < ordem; i++ {
+			if mat[i][colunaEscolhida] != 0 {
+				submat = menorMatriz(mat, i, colunaEscolhida)
+				det = det + sinal*mat[i][colunaEscolhida]*determinanteOtimizado(submat)
+			}
+			sinal = sinal * (-1)
+		}
+	}
+	return det
 }
 
 func executaTeste(ordem int) {
 	var i int
 	var matriz [][]int
-	var tempoBaseline int64
-	var tempoOtimizado int64
-	var mediaBaseline int64
-	var mediaOtimizado int64
-	var totalBaseline int64
-	var totalOtimizado int64
+	var matrizOtimizada [][]int
+
 	var detBase int
 	var detOtim int
-	var inicio time.Time
-	var fim time.Time
 
-	fmt.Printf("\n===== MATRIZ ORDEM %d =====\n\n", ordem)
+	var tempoBaseline int64
+	var tempoOtimizado int64
+
+	var mediaBaseline int64
+	var mediaOtimizado int64
+
+	var totalBaseline int64
+	var totalOtimizado int64
+
+	var tempoInicio time.Time
+	var tempoFim time.Time
+
+	mediaBaseline = 0
+	mediaOtimizado = 0
+
+	totalBaseline = 0
+	totalOtimizado = 0
+
+	fmt.Printf("\n===== MATRIZ ORDEM %d =====\n", ordem)
 
 	for i = 0; i < 3; i++ {
+		fmt.Printf("\n--- Execução %d ---\n", i+1)
 		matriz = gerarMatrizAleatoria(ordem)
-
-		fmt.Printf("Execução %d\n", i+1)
 
 		fmt.Println("Matriz baseline:")
 		imprimeMatriz(matriz)
-		inicio = time.Now()
+
+		tempoInicio = time.Now()
 		detBase = determinanteBaseline(matriz)
-		fim = time.Now()
-		tempoBaseline = fim.Sub(inicio).Nanoseconds()
+		tempoFim = time.Now()
+		tempoBaseline = tempoFim.Sub(tempoInicio).Nanoseconds()
 		fmt.Printf("Tempo(ns): %d\n", tempoBaseline)
-		fmt.Printf("Determinante: %d\n\n", detBase)
+		fmt.Printf("Determinante: %d\n", detBase)
 		mediaBaseline = mediaBaseline + tempoBaseline
 		totalBaseline = totalBaseline + tempoBaseline
 
+		matrizOtimizada = copiaMatriz(matriz)
 		fmt.Println("Matriz otimizada:")
-		imprimeMatriz(matriz)
-		inicio = time.Now()
-		detOtim = determinanteOtimizado(matriz)
-		fim = time.Now()
-		tempoOtimizado = fim.Sub(inicio).Nanoseconds()
+		imprimeMatriz(matrizOtimizada)
+
+		tempoInicio = time.Now()
+		detOtim = determinanteOtimizado(matrizOtimizada)
+		tempoFim = time.Now()
+		tempoOtimizado = tempoFim.Sub(tempoInicio).Nanoseconds()
 		fmt.Printf("Tempo(ns): %d\n", tempoOtimizado)
-		fmt.Printf("Determinante: %d\n\n", detOtim)
+		fmt.Printf("Determinante: %d\n", detOtim)
 		mediaOtimizado = mediaOtimizado + tempoOtimizado
 		totalOtimizado = totalOtimizado + tempoOtimizado
 
-		fmt.Println("====================================\n")
+		fmt.Println("---------------------------")
 	}
 
-	fmt.Printf("MÉDIA TEMPO BASELINE (ordem %d): %d ns\n", ordem, mediaBaseline/3)
+	fmt.Printf("\nMÉDIA TEMPO BASELINE (ordem %d): %d ns\n", ordem, mediaBaseline/3)
 	fmt.Printf("MÉDIA TEMPO OTIMIZADO (ordem %d): %d ns\n", ordem, mediaOtimizado/3)
-	fmt.Println("====================================")
+	fmt.Println("===============================")
 }
 
 func main() {
@@ -166,13 +254,15 @@ func main() {
 	var tempoFim time.Time
 	var tempoTotal int64
 
-	tempoInicio = time.Now()
 	ordens = []int{3, 5, 7, 9, 11}
+
+	tempoInicio = time.Now()
 	for cont = 0; cont < len(ordens); cont++ {
 		executaTeste(ordens[cont])
 	}
 	tempoFim = time.Now()
 
 	tempoTotal = tempoFim.Sub(tempoInicio).Nanoseconds()
+
 	fmt.Printf("\nTEMPO TOTAL DE EXECUÇÃO (baseline + otimizado): %d ns\n", tempoTotal)
 }

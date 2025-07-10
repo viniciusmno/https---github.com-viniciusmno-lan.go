@@ -7,6 +7,7 @@ import (
 )
 
 func imprimeMatriz(mat [][]int) {
+
 	var contI int
 	var contJ int
 	for contI = 0; contI < len(mat); contI++ {
@@ -30,6 +31,7 @@ func iniciaMatrizAleatoria(mat [][]int, ordem int) {
 }
 
 func copiaMatriz(orig [][]int) [][]int {
+
 	var ordem int
 	var contI int
 	var contJ int
@@ -48,6 +50,7 @@ func copiaMatriz(orig [][]int) [][]int {
 }
 
 func verificaQuadradaOrdem(mat [][]int) (bool, int) {
+
 	var numLinhas int
 	var numColunas int
 	var ehQuadrada bool
@@ -112,7 +115,15 @@ func detOrdem2(mat [][]int) int {
 }
 
 func detOrdemN(mat [][]int) int {
-	var sinal, cofator, detTemp, resposta, contL, contC, numL, numC, cont int
+	var sinal int
+	var cofator int
+	var detTemp int
+	var resposta int
+	var contL int
+	var contC int
+	var numL int
+	var numC int
+	var cont int
 	var matMenor [][]int
 	numL = len(mat)
 	numC = len(mat[0])
@@ -153,7 +164,12 @@ func determinante(mat [][]int) int {
 }
 
 func linhaOuColunaMaisZeros(mat [][]int) (bool, int) {
-	var contI, contJ, contZero, maxZeros, indiceMax int
+
+	var contI int
+	var contJ int
+	var contZero int
+	var maxZeros int
+	var indiceMax int
 	var ehLinha bool
 
 	maxZeros = -1
@@ -188,7 +204,16 @@ func linhaOuColunaMaisZeros(mat [][]int) (bool, int) {
 }
 
 func detOrdemNOtimizado(mat [][]int) int {
-	var sinal, cofator, detTemp, resposta, contL, contC, numL, numC, cont int
+
+	var sinal int
+	var cofator int
+	var detTemp int
+	var resposta int
+	var contL int
+	var contC int
+	var numL int
+	var numC int
+	var cont int
 	var matMenor [][]int
 	var ehLinha bool
 	var indiceMax int
@@ -237,6 +262,7 @@ func detOrdemNOtimizado(mat [][]int) int {
 }
 
 func medirTempo(mat [][]int, fn func([][]int) int) int64 {
+
 	var inicio time.Time
 	var fim time.Time
 	var duracao int64
