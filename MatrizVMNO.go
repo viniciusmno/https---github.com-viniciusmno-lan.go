@@ -114,7 +114,6 @@ func determinanteOtimizado(mat [][]int) int {
 	var linhaEscolhida int
 	var colunaEscolhida int
 	var submat [][]int
-
 	var zerosLinha []int
 	var zerosColuna []int
 
@@ -197,7 +196,6 @@ func imprimaExperimento(ordem int) {
 
 	mediaBaseline = 0
 	mediaOtimizado = 0
-
 	totalBaseline = 0
 	totalOtimizado = 0
 
